@@ -14,7 +14,7 @@ class Liquidity():
 
   def update(self, _, uid, point):
     """Update liquidity from request"""
-    if not isinstance(point, lisptick.Point):
+    if not isinstance(point, lisptick.reader.Point):
       #should not happen
       return
     self.time = point.time
