@@ -1,177 +1,16 @@
-"""
-LispTick TimeSerie Streaming Server module
-To work on an Onion Omega2 needs:
-opkg update
-opkg install python-codecs
-"""
 import datetime
-import json
 import struct
-import socket
 
-# Types byte definition
-TNULL = b'\x00'
-TINT = b'\x01'
-TFLOAT = b'\x02'
-TTIME = b'\x03'
-TDURATION = b'\x04'
-TERROR = b'\x05'
-TSTRING = b'\x06'
-TARRAY = b'\x07'
-TARRAYSERIAL = b'\x08'
-TTIMESERIE = b'\x09'
-TSENTINEL = b'\x0A'
-TBOOL = b'\x0B'
-TDEC64 = b'\x0C'
-TPAIR = b'\x0D'
-THEARTBEAT = b'\x0E'
-TTENSOR = b'\x0F'
+from lisptick.types import *
+from lisptick.exceptions import LispTickException
+from lisptick.classes import Duration, HeartBeat, InArray, Point, Sentinel, Tensor
 
 
-class LispTickException(Exception):
-    """Simple LispTick error message"""
-
-    def __init__(self, msg):
-        super(LispTickException, self).__init__(msg)
-        self._msg = msg
-
-    def _str_(self):
-        return self._msg
-
-
-class Sentinel(int):
-    """Sentinel object indicating end of a grid flow"""
-    Null = 0
-    End = 1
-    Marker = 2
-
-
-class InArray():
-    """UID and position in an array"""
-
-    def __init__(self, init_uid, init_pos):
-        self.uid = init_uid
-        self.pos = init_pos
-
-    def __str__(self):
-        return str(self.__class__) + ": " + str(self.__dict__)
-
-    def get_uid(self):
-        """Element uniq id"""
-        return self.uid
-
-    def get_pos(self):
-        """Element position in array"""
-        return self.pos
-
-
-class Duration():
-    """LispTick duration time handling Year, Month, Day and microseconds (from nano)"""
-
-    def __init__(self, init_year=0, init_month=0, init_day=0, init_epoch=0):
-        self.year = init_year
-        self.month = init_month
-        self.timedelta = datetime.timedelta(init_day, 0, init_epoch / 1000)
-
-    def __str__(self):
-        return str(self.year) + "Y" + str(self.month) + "M" + str(self.timedelta)
-
-    def get_year(self):
-        """Number of years duration part"""
-        return self.year
-
-    def get_month(self):
-        """Number of month duration part"""
-        return self.month
-
-    def get_timedelta(self):
-        """micro seconds and days duration part as a timedelta"""
-        return self.timedelta
-
-
-class Point():
-    """A point is a value at a time"""
-
-    def __init__(self, init_time, init_value):
-        self.time = init_time
-        self.i = init_value
-
-    def __str__(self):
-        return str(self.time) + " " + str(self.i)
-
-    def __len__(self):
-        return 2
-
-
-class HeartBeat():
-    """An HeartBeat is an information value that can be forgotten"""
-
-    def __init__(self, init_value):
-        self.value = init_value
-
-    def __str__(self):
-        return str(self.__class__) + ": " + str(self.__dict__)
-
-    def get_value(self):
-        """HeartBeat value"""
-        return self.value
-
-class Tensor():
-    """Tensor  n-dimensional arrays"""
-
-    def __init__(self, shape, values=None):
-        self.shape = shape
-        if values is None:
-            values = [0] * self.get_size()
-        self.values = values
-
-    def __str__(self):
-        return str(self.__class__) + ": " + str(self.__dict__)
-
-    def get_size(self):
-        """tensor size in number of values"""
-        size = 1
-        for i in self.shape:
-            size *= i
-        return size
-
-
-class Socket():
-    """Request LispTick by socket"""
-
-    def __init__(self, host, port):
-        self.__host = host
-        self.__port = port
-
-    def get_result(self, request):
-        """Send resquest to server and return result"""
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.connect((self.__host, self.__port))
-
-        # Send request
-        send_message(sock, request)
-        res = LisptickReader(sock).get_result(-1)
-
-        sock.close()
-        return res
-
-    def walk_result(self, request, func):
-        """Call func on each part of result"""
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.connect((self.__host, self.__port))
-
-        # Send request
-        send_message(sock, request)
-        err_msg = LisptickReader(sock).walk_result(func)
-
-        sock.close()
-        if err_msg != "":
-            raise LispTickException(err_msg)
-
-#dec64 float factor
+# dec64 float factor
 factors = [1.0]*129
-for e in range (0, 128):
+for e in range(0, 128):
     factors[e] = pow(10.0, e)
+
 
 class ReaderContext():
     """internaly used by get_result to read full result"""
@@ -542,26 +381,16 @@ class LisptickReader():
         return res
 
 
-def epoch_datetime(epoch):
-    """Transform 64bits epoch to datetime"""
+def epoch_datetime(epoch: int) -> datetime:
+    """Transform 64bits epoch to datetime
+
+    Args:
+        epoch (int): epoch number
+
+    Returns:
+        datetime: epoch datetime
+    """
     # Empty ?
     if epoch == -6795364578871345152:
         return datetime.time()
     return datetime.datetime.fromtimestamp(epoch / 1e9)
-
-
-def send_message(sock, request):
-    """Send request to LispTick"""
-    msg = json.dumps({"code": request}).encode()
-    if len(msg) > 65536:
-        raise RuntimeError("message for LispTick is >64KB")
-    bsize = bytearray()
-    bsize.append(len(msg) % 256)
-    bsize.append(int(len(msg)/256))
-    sock.send(bsize)
-    totalsent = 0
-    while totalsent < len(msg):
-        sent = sock.send(msg[totalsent:])
-        if sent == 0:
-            raise RuntimeError("socket connection broken")
-        totalsent = totalsent + sent

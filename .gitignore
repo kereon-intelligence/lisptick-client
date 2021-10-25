@@ -1,5 +1,9 @@
 # Python bytecode-compiled
-*.pyc
+**/*.py[cod]
 
 # bytecode-compiled cache
-/__pycache__
+**/__pycache__
+
+**/build/
+**/dist/
+**/lisptick.egg-info/
