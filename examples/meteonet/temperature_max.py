@@ -1,7 +1,7 @@
 """Walk maximums temperature in Celsius"""
 import lisptick
 
-HOST = "uat.lisptick.org"
+HOST = "lisptick.org"
 PORT = 12006
 
 def main():
