@@ -5,8 +5,8 @@
 It allows to send request and receive result from a LispTick server.  
 Get a socket connection to a LispTick server, for example:
 
-* lisptick.org:12006 main server
-* uat.lisptick.org:12006 UAT server
+* `lisptick.org:12006` main server
+* `kereon.lisptick.org:12006` Kereon Intelligence server
 
 Send your request and read the streamed result.
 

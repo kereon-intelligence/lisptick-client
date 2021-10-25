@@ -7,7 +7,7 @@ import datetime
 import re
 import lisptick
 
-HOST = "uat.lisptick.org"
+HOST = "lisptick.org"
 PORT = 12006
 
 

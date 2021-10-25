@@ -1,7 +1,7 @@
 """Some liquidity indicators, asked from 1 minute in past until next minute"""
 import lisptick
 
-HOST = "uat.lisptick.org"
+HOST = "lisptick.org"
 PORT = 12006
 
 class Liquidity():

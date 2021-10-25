@@ -14,4 +14,4 @@ TBOOL = b'\x0B'
 TDEC64 = b'\x0C'
 TPAIR = b'\x0D'
 THEARTBEAT = b'\x0E'
-TTENSOR = b'\x0F'
+TTENSOR = b'\x0F' #experimental type, May change in the future
