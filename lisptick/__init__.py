@@ -5,7 +5,7 @@ opkg update
 opkg install python-codecs
 """
 
-__version__ = "0.2.2"
+__version__ = "0.1.0"
 __author__ = 'Cedric Joulain'
 __credits__ = 'Kereon Intelligence'
 

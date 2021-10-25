@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="lisptick",
-    version="0.2.2",
+    version="0.1.0",
     author="Cedric Joulain",
     author_email="cedric.joulain@kereon-intelligence.com",
     description="LispTick Python client library",
@@ -18,7 +18,8 @@ setuptools.setup(
     classifiers=[
         "License :: OSI Approved :: Apache Software License",
         "Operating System :: OS Independent",
-        'Programming Language :: Python :: 3',
+        'Programming Language :: Python',
     ],
     packages=["lisptick"],
+    python_requires='>=2.6'
 )

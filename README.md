@@ -11,10 +11,6 @@ Get a socket connection to a LispTick server, for example:
 Send your request and read the streamed result.
 
 ## package
-
-**lisptick.py** is the only module to import.  
-Add it to your ```$PYTHONPATH``` or put it next to your code.
-
 client_test.py is our regression test ensuring each data type is checked.
 
 ### MeteoNet Example
